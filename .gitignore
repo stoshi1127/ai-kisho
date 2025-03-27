@@ -1,0 +1,16 @@
+# 環境変数
+.env
+# 仮想環境
+venv/
+# 出力ファイル
+outputs/
+# ログファイル
+logs/
+# バックアップファイル
+backups/
+# Pythonキャッシュ
+__pycache__/
+*.py[cod]
+*$py.class
+# その他
+.DS_Store
