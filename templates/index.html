@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI記事匠 - 飲食店記事生成システム</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        .result-section {
+            margin-top: 30px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI記事匠</h1>
+            <p>五感表現と行動喚起に特化した飲食店専用AI記事生成システム</p>
+        </div>
+        
+        <div class="form-section">
+            <form id="generate-form">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>店舗基本情報</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="shop-name" class="form-label">店舗名</label>
+                                <input type="text" class="form-control" id="shop-name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cuisine-type" class="form-label">料理ジャンル</label>
+                                <select class="form-select" id="cuisine-type">
+                                    <option value="japanese">和食</option>
+                                    <option value="italian">イタリアン</option>
+                                    <option value="cafe">カフェ</option>
+                                    <option value="general">その他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="location" class="form-label">地域</label>
+                                <input type="text" class="form-control" id="location" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="target-customers" class="form-label">ターゲット顧客層</label>
+                                <input type="text" class="form-control" id="target-customers">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="price-range" class="form-label">価格帯</label>
+                                <input type="text" class="form-control" id="price-range">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="features" class="form-label">店舗の特徴</label>
+                                <textarea class="form-control" id="features" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>メニュー情報</h3>
+                    </div>
+                    <div class="card-body" id="menu-items-container">
+                        <div class="menu-item row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">メニュー名</label>
+                                <input type="text" class="form-control menu-name">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">価格</label>
+                                <input type="text" class="form-control menu-price">
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <label class="form-label">特徴</label>
+                                <input type="text" class="form-control menu-features">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-secondary" id="add-menu-btn">メニューを追加</button>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>こだわりポイント</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ingredients-focus" class="form-label">食材へのこだわり</label>
+                                <textarea class="form-control" id="ingredients-focus" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cooking-method" class="form-label">調理法のこだわり</label>
+                                <textarea class="form-control" id="cooking-method" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="atmosphere" class="form-label">店内の雰囲気</label>
+                                <textarea class="form-control" id="atmosphere" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="service" class="form-label">サービスの特徴</label>
+                                <textarea class="form-control" id="service" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>コンテンツ設定</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="platform" class="form-label">プラットフォーム</label>
+                                <select class="form-select" id="platform">
+                                    <option value="blog">ブログ記事</option>
+                                    <option value="sns">SNS投稿</option>
+                                    <option value="google">Googleビジネス投稿</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="purpose" class="form-label">目的</label>
+                                <select class="form-select" id="purpose">
+                                    <option value="awareness">認知拡大</option>
+                                    <option value="reservation">予約促進</option>
+                                    <option value="visit">来店促進</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <button type="submit" class="btn btn-primary btn-lg">記事を生成</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="result-section hidden" id="result-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3>生成結果</h3>
+                </div>
+                <div class="card-body">
+                    <div id="result-content"></div>
+                    
+                    <div class="mt-4">
+                        <h4>フィードバック</h4>
+                        <textarea class="form-control mb-3" id="feedback" rows="3" placeholder="記事に対するフィードバックを入力してください..."></textarea>
+                        <button class="btn btn-secondary" id="refine-btn">記事を改善</button>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-success" id="copy-btn">結果をコピー</button>
+                    <button class="btn btn-outline-secondary" id="new-btn">新しい記事を作成</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // メニュー追加ボタンの処理
+            document.getElementById('add-menu-btn').addEventListener('click', function() {
+                const container = document.getElementById('menu-items-container');
+                const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item row';
+                menuItem.innerHTML = `
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">メニュー名</label>
+                        <input type="text" class="form-control menu-name">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">価格</label>
+                        <input type="text" class="form-control menu-price">
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label">特徴</label>
+                        <input type="text" class="form-control menu-features">
+                    </div>
+                `;
+                container.appendChild(menuItem);
+            });
+            
+            // フォーム送信の処理
+            document.getElementById('generate-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // 店舗情報の取得
+                const shopInfo = {
+                    name: document.getElementById('shop-name').value,
+                    cuisine_type: document.getElementById('cuisine-type').value,
+                    location: document.getElementById('location').value,
+                    target_customers: document.getElementById('target-customers').value,
+                    price_range: document.getElementById('price-range').value,
+                    features: document.getElementById('features').value,
+                    ingredients_focus: document.getElementById('ingredients-focus').value,
+                    cooking_method: document.getElementById('cooking-method').value,
+                    atmosphere: document.getElementById('atmosphere').value,
+                    service: document.getElementById('service').value
+                };
+                
+                // メニュー情報の取得
+                const menuItems = [];
+                document.querySelectorAll('.menu-item').forEach(function(item) {
+                    const name = item.querySelector('.menu-name').value;
+                    const price = item.querySelector('.menu-price').value;
+                    const features = item.querySelector('.menu-features').value;
+                    
+                    if (name || price || features) {
+                        menuItems.push({
+                            name: name,
+                            price: price,
+                            features: features
+                        });
+                    }
+                });
+                shopInfo.menu_items = menuItems;
+                
+                // プラットフォームと目的の取得
+                const platform = document.getElementById('platform').value;
+                const purpose = document.getElementById('purpose').value;
+                
+                // ローディング表示
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 生成中...';
+                
+                try {
+                    // APIリクエスト
+                    const response = await fetch('/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            shop_info: shopInfo,
+                            platform: platform,
+                            purpose: purpose
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // 結果の表示
+                        document.getElementById('result-content').innerText = data.content;
+                        document.getElementById('result-section').classList.remove('hidden');
+                        document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        alert('エラーが発生しました: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('APIリクエストに失敗しました: ' + error.message);
+                } finally {
+                    // ボタンを元に戻す
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '記事を生成';
+                }
+            });
+            
+            // 記事改善ボタンの処理
+            document.getElementById('refine-btn').addEventListener('click', async function() {
+                const originalContent = document.getElementById('result-content').innerText;
+                const feedback = document.getElementById('feedback').value;
+                
+                if (!feedback.trim()) {
+                    alert('フィードバックを入力してください');
+                    return;
+                }
+                
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 改善中...';
+                
+                try {
+                    const response = await fetch('/refine', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            original_content: originalContent,
+                            feedback: feedback
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        document.getElementById('result-content').innerText = data.content;
+                    } else {
+                        alert('エラーが発生しました: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('APIリクエストに失敗しました: ' + error.message);
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = '記事を改善';
+                }
+            });
+            
+            // コピーボタンの処理
+            document.getElementById('copy-btn').addEventListener('click', function() {
+                const content = document.getElementById('result-content').innerText;
+                navigator.clipboard.writeText(content)
+                    .then(() => {
+                        this.innerHTML = 'コピーしました！';
+                        setTimeout(() => {
+                            this.innerHTML = '結果をコピー';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        alert('コピーに失敗しました: ' + err);
+                    });
+            });
+            
+            // 新規作成ボタンの処理
+            document.getElementById('new-btn').addEventListener('click', function() {
+                document.getElementById('result-section').classList.add('hidden');
+                document.getElementById('generate-form').reset();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
